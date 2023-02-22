@@ -3,6 +3,7 @@
    @author: Soufiane EL KHARMOUDI
 */
 
+#define _GNU_SOURCE
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,10 +12,14 @@
 #include <time.h>
 #include <errno.h>
 #include "thread_wrapper.h"
-#define NbConsole 1
-#define ConsoleLibre 0
-#define Nbplayer 8
-#define NbSieges 8
+#include <semaphore.h>
+#include <pthread.h>
+
+
+#define NB_CONSOLE 1
+#define CONSOLE_LIBRE 0
+#define NB_PLAYER 8
+#define NB_SIEGE 8
 #define CHF 100
 
 typedef struct
@@ -35,7 +40,7 @@ static void barrier_init(barrier_t *b, int count)
 
 static bool siegesLibre(int count)
 {
-	if (barrier.count < NbSieges)
+	if (barrier.count < NB_SIEGE)
 		return true;
 
 	return false;
@@ -75,11 +80,6 @@ static void *compute(void *arg)
 	barrier_wait(&barrier);
 	printf("Thread %d passed the barrier!\n", id);
 	return NULL;
-}
-
-static play()
-{
-	sleep(4);
 }
 
 int main()
