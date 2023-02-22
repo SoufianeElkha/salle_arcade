@@ -1,4 +1,4 @@
-# Pcu_tp3_salle_arcade
+# tp3_pcu_console
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitedu.hesge.ch/soufiane.elkharmo/pcu_tp3_salle_arcade.git
+git remote add origin https://gitedu.hesge.ch/soufiane.elkharmo/tp3_pcu_console.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitedu.hesge.ch/soufiane.elkharmo/pcu_tp3_salle_arcade/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitedu.hesge.ch/soufiane.elkharmo/tp3_pcu_console/-/settings/integrations)
 
 ## Collaborate with your team
 
