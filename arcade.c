@@ -1,75 +1,102 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <unistd.h>
 
-#define MAX_GAMES 100
-#define MAX_PLAYERS 100
-#define WAITING_ROOM_SIZE 8
-#define PLAYER_MONEY 100
-#define GAME_MONEY 1
+//gcc -pthread arcade.c -o play
 
-// mutex per la mutua esclusione sull'accesso alla console di gioco
-pthread_mutex_t game_console_mutex;
+#define NB_SEATS 8
+#define MAX_PLAYERS 200
+#define MAX_CASH 100
+#define PLAY_COST 1
 
-// semafori per la sincronizzazione tra i thread
-sem_t player_sem;
-sem_t console_sem;
-sem_t money_sem;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+sem_t sem_consoles;
+int cash = MAX_CASH;
+int nb_games = 0;
 
-// contatori per il denaro totale, il numero di partite giocate e il numero di giocatori che hanno terminato le partite
-int total_money;
-int games_played;
-int players_finished;
+void *player(void *arg)
+{
+    int id = *(int *)arg;
+    int nb_plays = 0;
+    int seat = 0;
 
-// funzione eseguita dai thread giocatore
-void* player_function(void* id) {
-    int player_id = *(int*) id;
-    int remaining_money = PLAYER_MONEY;
+    while (cash >= PLAY_COST)
+    {
+        printf("CHF: %d\n", cash);
+        printf("[joueur %d] se promène en ville...\n", id);
+        usleep(rand() % 5000 + 4000);
+        printf("[joueur %d] entre dans l'arcade\n", id);
 
-    while (1) {
-        // il giocatore si ferma per un po' di tempo
-        usleep((rand() % 5 + 4) * 1000);
+        pthread_mutex_lock(&mutex);
 
-        // il giocatore entra nella sala giochi e cerca un posto in attesa
-        printf("[player %d] strolls around the city...\n", player_id);
-        sem_wait(&player_sem);
-        printf("[player %d] enters the arcade\n", player_id);
+        if (seat < NB_SEATS)
+        {
+            printf("CHF: %d\n", cash);
+            printf("[joueur %d] est dans la salle d'attente\n", id);
+            seat++;
+            printf("[joueur %d] paie une pièce. Argent restant des joueurs : %d\n", id, cash - PLAY_COST);
+            cash -= PLAY_COST;
+            nb_plays++;
 
-        int waiting_room_size;
-        sem_getvalue(&player_sem, &waiting_room_size);
+            pthread_mutex_unlock(&mutex);
+            sem_wait(&sem_consoles);
+            printf("[joueur %d] joue jusqu'à la fin du jeu...\n", id);
+            usleep(rand() % 2000 + 2000);
+            sem_post(&sem_consoles);
+            printf("[JEU] terminé (fin de partie) ! Argent de la machine : %d\n", ++nb_games == 100 ? 0 : 1);
+        }
+        else
+        {
+            pthread_mutex_unlock(&mutex);
+            printf("[joueur %d] quitte la boutique (nb_jeux : %d)\n", id, nb_plays);
+        }
+    }
 
-        // se c'è un posto libero in attesa, il giocatore si siede e paga per la partita
-        if (waiting_room_size <= WAITING_ROOM_SIZE) {
-            sem_post(&player_sem);
-            printf("[player %d] is in the waiting room\n", player_id);
-            sem_wait(&money_sem);
+    printf("[joueur %d] n'a plus d'argent (nb_jeux : %d)\n", id, nb_plays);
 
-            if (total_money >= GAME_MONEY) {
-                total_money -= GAME_MONEY;
-                remaining_money -= GAME_MONEY;
+    free(arg);
+    pthread_exit(NULL);
+}
 
-                printf("[player %d] pays a coin. Remaining players cash: %d\n", player_id, total_money);
-                sem_post(&money_sem);
-            } else {
-                sem_post(&money_sem);
-                printf("[player %d] has no more money and leaves the arcade\n", player_id);
-                sem_wait(&player_sem);
-                sem_post(&player_sem);
-                pthread_exit(NULL);
-            }
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        printf("Utilisation : %s <nb_joueurs>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-            // il giocatore aspetta che la console di gioco sia libera e si mette a giocare
-            pthread_mutex_lock(&game_console_mutex);
-            printf("[player %d] plays until game is over...\n", player_id);
-            sem_post(&console_sem);
-            pthread_mutex_unlock(&game_console_mutex);
+    int nb_players = atoi(argv[1]);
 
-            // il giocatore ha terminato la partita
-            games_played++;
-            remaining_money += PLAYER_MONEY - GAME_MONEY;
+    if (nb_players < 1 || nb_players > MAX_PLAYERS)
+    {
+        printf("Nombre de joueurs invalide (entre 1 et %d)\n", MAX_PLAYERS);
+        exit(EXIT_FAILURE);
+    }
 
-            // se il gioco è finito, il giocatore termina
-            if (games_played >= MAX_GAMES) {
-                sem
+    srand(time(NULL));
+    //cash = MAX_PLAYERS * PLAY_COST;
+
+    sem_init(&sem_consoles, 0, 1);
+
+    pthread_t tid[nb_players];
+
+    for (int i = 0; i < nb_players; i++)
+    {
+        int *id = malloc(sizeof(int));
+        *id = i + 1;
+        pthread_create(&tid[i], NULL, player, (void *)id);
+    }
+
+    for (int i = 0; i < nb_players; i++)
+    {
+        pthread_join(tid[i], NULL);
+    }
+
+    sem_destroy(&sem_consoles);
+    pthread_mutex_destroy(&mutex);
+
+    return EXIT_SUCCESS;
+}
