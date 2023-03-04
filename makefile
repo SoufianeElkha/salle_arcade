@@ -1,16 +1,10 @@
 CC=gcc -Wall -Wextra -std=gnu99 -g
 LIBS=-lpthread
 
-all: console
+all: play
 	
-console: console.o thread_wrapper.o
+play: play.o
 	$(CC) $^ -o $@ $(LIBS)
 
-thread_wrapper.o: thread_wrapper.c thread_wrapper.h
-	$(CC) $< -c
-
 clean:
-	rm -f console *.o
-
-run:
-	./console
+	rm -f play *.o
