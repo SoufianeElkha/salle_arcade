@@ -25,6 +25,13 @@ Attendez les threads du lecteur et de la console avant de terminer le programme.
 
 Enfin, détruisez les sémaphores et les mutex.
 
+## Example of use:
+
+#### >make
+#### >./tp3_salle_arcade 20
+#### >make clean    
+
+
 ```c
 soufiane@sek:~/Bureau/PCO/pcu_tp3_salle_arcade$ make
 gcc  -Wall -Wextra -std=gnu99 -fsanitize=address -fsanitize=leak -fsanitize=undefined   -c -o src/main.o src/main.c
