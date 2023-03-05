@@ -7,16 +7,17 @@ LIBS=-lpthread
 
 # Executable name
 TARGET=tp3_salle_arcade
+SRC=src/
 
 # All compile
 all: $(TARGET) 
 
 # Executable
-$(TARGET): src/main.o
+$(TARGET): $(SRC)main.o
 	$(CC) $^ $(CFLAGS) -o $@ $(LIBS)
 
 clean:
-	rm -f $(TARGET) *.o && rm -f src/*.o
+	rm -f $(TARGET) *.o && rm -f $(SRC)*.o
 	@echo "Cleanup complete!"
 
 
