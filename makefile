@@ -12,11 +12,11 @@ TARGET=tp3_salle_arcade
 all: $(TARGET) 
 
 # Executable
-$(TARGET): main.o
+$(TARGET): src/main.o
 	$(CC) $^ $(CFLAGS) -o $@ $(LIBS)
 
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET) *.o && rm -f src/*.o
 	@echo "Cleanup complete!"
 
 
