@@ -1,4 +1,5 @@
 # But du projet:
+
     Ce code simule une arcade où les joueurs entrent, attendent leur tour dans une salle d'attente, ils paient pour jouer à un jeu, puis quittent l'arcade.
     La capacité de la salle d'attente est limitée à MAX_WAITING_SEATS.
     Il y a MAX_PLAYERS joueurs entrant dans l'arcade. Le montant total d'argent dans la machine est TOTAL_MONEY.
@@ -24,8 +25,7 @@
 
     Enfin, détruisez les sémaphores et les mutex.
 
-```java
-
+```c
 soufiane@sek:~/Bureau/PCO/pcu_tp3_salle_arcade/src$ make clean
 rm -f tp3_salle_arcade *.o
 Cleanup complete!
@@ -66,5 +66,4 @@ soufiane@sek:~/Bureau/PCO/pcu_tp3_salle_arcade/src$ ./tp3_salle_arcade 20
 [GAME] waiting player to start...
 All games: 100
 soufiane@sek:~/Bureau/PCO/pcu_tp3_salle_arcade/src$ 
-
 ```
